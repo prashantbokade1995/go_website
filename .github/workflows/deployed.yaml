@@ -27,9 +27,15 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
 
+deploy:
+  needs: build
+  runs-on: self-hosted
+  steps:
+    - name: Pull Docker image
+      run: docker pull prashantbokade/go-app:latest
+
     - name: Deploy to container
-      run: |
-        docker run -d --name my-go-app -p 8080:8080 prashantbokade/go-app:latest
+      run: docker run -d --name my-go-app -p 8080:8080 prashantbokade/go-app:latest
 
     - name: Update kubeconfig
       run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
