@@ -22,7 +22,17 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: your-registry/your-image-name:latest
+        tags: prashantbokade/go-app:latest
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Deploy to container
+      run: |
+        docker run -d --name my-go-app -p 8080:8080 prashantbokade/go-app:latest
+
+    - name: Update kubeconfig
+      run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
+
+    - name: Deploy to Kubernetes
+      run: kubectl apply -f deployment-service.yml
