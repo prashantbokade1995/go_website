@@ -27,6 +27,12 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Install Helm
+      run: |
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+
 deploy:
   needs: build
   runs-on: self-hosted
@@ -34,11 +40,6 @@ deploy:
     - name: Pull Docker image
       run: docker pull prashantbokade/go-app:latest
 
-    - name: Deploy to container
-      run: docker run -d --name my-go-app -p 8080:8080 prashantbokade/go-app:latest
-
-    - name: Update kubeconfig
-      run: aws eks --region ap-south-1 update-kubeconfig --name EKS_CLOUD
-
-    - name: Deploy to Kubernetes
-      run: kubectl apply -f deployment-service.yml
+    - name: Deploy to Kubernetes using Helm
+      run: |
+        helm install my-go-app ./templates
