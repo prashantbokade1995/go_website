@@ -44,6 +44,21 @@ jobs:
       - name: Pull Docker image
         run: docker pull prashantbokade/go-app:latest
 
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
       - name: Deploy to Kubernetes using Helm
         run: |
           helm install my-go-app ./templates
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/my-go-app
+
+      - name: Run Go App
+        run: |
+          # Add your command to interact with the Go application here
+          curl http://my-go-app-service.default.svc.cluster.local:8080
